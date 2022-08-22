@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        body {
+            background-color: rgb(39, 37, 37);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <input type="text">
+        <button>Add User</button>
+    </div>
+
+    <div class="container"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const container = document.querySelector(".container");
+        const input = document.querySelector("input");
+        const button = document.querySelector("button");
+        const userList = {};
+
+        button.addEventListener("click", () => {
+            socket.emit("new-user", input.value);
+            input.value = " ";
+        })
+
+        socket.on("connect", () => console.log("User connected"));
+
+        socket.on("new-user", (data) => {
+            userList[data.id] = null;
+            const div = document.createElement("div");
+            div.textContent = data;
+            container.appendChild(div);
+        })
+
+        socket.on("mousemove", (data) => {
+            if (!userList[data.id]) {
+                const div = document.createElement("div");
+                div.style.width = "10px";
+                div.style.height = "10px";
+                div.style.backgroundColor = setBg();
+                div.style.position = "absolute";
+                div.style.borderRadius = "50%";
+                userList[data.id] = div;
+                div.style.left = data.coordinates.x + "px";
+                div.style.top = data.coordinates.y + "px";
+                document.body.appendChild(div);
+            }
+            userList[data.id].style.left = data.coordinates.x + "px";
+            userList[data.id].style.top = data.coordinates.y + "px";
+        });
+
+        const setBg = () => {
+            const randomColor = Math.floor(Math.random()*16777215).toString(16);
+            return "#" + randomColor;
+          }
+
+        document.addEventListener("mousemove", (event) => {
+            socket.emit("mousemove", { x: event.clientX, y: event.clientY })
+            console.log(event.clientX)
+            console.log(event.clientY)
+        })
+
+    </script>
+</body>
+
+</html>
