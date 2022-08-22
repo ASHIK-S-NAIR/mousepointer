@@ -23,6 +23,6 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("mousemove", {coordinates, id: socket.id})
   })
 });
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4005;
 
 server.listen(PORT, () => console.log(`Server is running on ${PORT}`));
